@@ -137,7 +137,7 @@
             
             <div class="dashboard-cards">
                 <div class="stat-card"><div class="value" id="cardOrdersCount">0</div><div class="label"><i class="ph ph-shopping-cart"></i> عدد الطلبيات</div></div>
-                <div class="stat-card"><div class="value" id="cardCustomersCount">0</div><div class="label"><i class="ph ph-users"></i> عدد الصيدليات</div></div>
+                <div class="stat-card"><div class="value" id="cardCustomersCount">0</div><div class="label"><i class="ph ph-users"></i>عدد الصيدليات</div></div>
                 <div class="stat-card"><div class="value" id="cardTotalValue">0.00</div><div class="label"><i class="ph ph-currency-circle-dollar"></i> إجمالي القيمة (د.أ)</div></div>
             </div>
 
@@ -552,7 +552,7 @@
             let r1Data = Object.entries(itemStatsMap)
                 .sort((a, b) => b[1].val - a[1].val)
                 .map(([name, stats]) => [name, stats.qty, stats.pharms.size, stats.val]);
-            buildHtmlTable('table-rep1', ['الصنف', 'إجمالي Units', 'عدد الصيدليات المستفيدة', 'إجمالي قيمة المبيعات (د.ا)'], r1Data, true);
+            buildHtmlTable('table-rep1', ['الصنف', 'إجمالي Units', 'عدد الصيدليات ال', 'إجمالي قيمة المبيعات (د.ا)'], r1Data, true);
 
             let repsArray = Array.from(allRepsSet).sort();
             let r2Headers = ['الصنف', ...repsArray];
@@ -584,7 +584,7 @@
                     let avgBonusPct = stats.qty > 0 ? Math.round((stats.bonus / stats.qty) * 100) + '%' : '0%';
                     return [name, stats.qty, stats.bonus, avgBonusPct];
                 });
-            buildHtmlTable('table-rep9', ['الصنف', 'إجمالي الكمية (Units)', 'إجمالي حبات البونص المنصرفة', 'متوسط نسبة البونص للصنف'], r9Data, false);
+            buildHtmlTable('table-rep9', ['الصنف', 'إجمالي الكمية (Units)', 'إجمالي حبات البونص المصروفة', 'متوسط نسبة البونص للصنف'], r9Data, false);
 
             let duplicatesData = [];
             Object.keys(duplicatesMap).forEach(key => {
