@@ -118,7 +118,26 @@ window.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => { window.print(); });
     }
 });
+// 🟢 إضافة: دالة لضبط التاريخ الافتراضي على الشهر الحالي
+function setDefaultMonthFilter() {
+    const date = new Date();
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    
+    // أول يوم في الشهر
+    const firstDay = `${y}-${m}-01`;
+    
+    // آخر يوم في الشهر
+    const lastDayDate = new Date(y, date.getMonth() + 1, 0);
+    const lastDay = `${y}-${m}-${String(lastDayDate.getDate()).padStart(2, '0')}`;
 
+    const fromInput = document.getElementById('managerFilterFrom');
+    const toInput = document.getElementById('managerFilterTo');
+
+    // تعيين التواريخ فقط إذا كانت الحقول فارغة (لعدم الكتابة فوق فلتر المستخدم)
+    if (fromInput && !fromInput.value) fromInput.value = firstDay;
+    if (toInput && !toInput.value) toInput.value = lastDay;
+}
 function initializeManagerView(managerName) {
     const repsUnder = Object.keys(repManagerMap).filter(rep => repManagerMap[rep] === managerName);
     const filterSelect = document.getElementById('managerRepFilter');
@@ -166,7 +185,7 @@ function initializeManagerView(managerName) {
     document.getElementById('navOrderBtn').style.display = 'none';
     document.getElementById('navMyOrdersBtn').style.display = 'none';
     document.getElementById('navReportsBtn').style.display = 'none';
-
+    setDefaultMonthFilter();
     const myTeamBtn = document.getElementById('managerMyTeamBtn');
     const allOrdersBtn = document.getElementById('managerAllOrdersBtn');
     const teamSection = document.getElementById('teamOrdersSection');
@@ -886,18 +905,18 @@ async function loadMyOrders() {
 }
 
 // 💡 تحديث الـ Dashboard المتقدم للمدير
+// 💡 تحديث الـ Dashboard المتقدم للمدير (ديناميكي 100%)
 function updateAdvancedManagerDashboard(orders) {
-    const todayStr = new Date().toLocaleDateString('en-GB');
-    let dailyCount = 0;
+    // 🟢 تغيير النص من "طلبيات اليوم" إلى "الطلبيات المعروضة" برمجياً دون الحاجة لتعديل HTML
+    const countLabel = document.querySelector('#dashDailyCount')?.previousElementSibling;
+    if(countLabel) countLabel.innerText = "عدد الطلبيات المعروضة";
+
     let totalVal = 0;
     let approvedCount = 0;
     const pharmCounts = {};
 
+    // 🟢 الاعتماد على الـ orders المفلترة بالكامل (تتغير تلقائياً حسب التاريخ المختار)
     orders.forEach(o => {
-        if (o.createdAt && o.createdAt.toDate) {
-            const oDate = o.createdAt.toDate().toLocaleDateString('en-GB');
-            if (oDate === todayStr) dailyCount++;
-        }
         totalVal += parseFloat(o.grandTotal) || 0;
         if (o.status === 'approved') approvedCount++;
 
@@ -906,14 +925,16 @@ function updateAdvancedManagerDashboard(orders) {
         }
     });
 
-    const appRate = orders.length > 0 ? Math.round((approvedCount / orders.length) * 100) : 0;
+    const periodCount = orders.length; // إجمالي الطلبيات في الفترة المحددة
+    const appRate = periodCount > 0 ? Math.round((approvedCount / periodCount) * 100) : 0;
+    
     let topPharm = "-";
     let maxC = 0;
     for (const [p, c] of Object.entries(pharmCounts)) {
         if (c > maxC) { maxC = c; topPharm = p; }
     }
 
-    const e1 = document.getElementById('dashDailyCount'); if(e1) e1.innerText = dailyCount;
+    const e1 = document.getElementById('dashDailyCount'); if(e1) e1.innerText = periodCount;
     const e2 = document.getElementById('dashTotalValue'); if(e2) e2.innerText = totalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " د.ا";
     const e3 = document.getElementById('dashApprovalRate'); if(e3) e3.innerText = appRate + "%";
     const e4 = document.getElementById('dashTopPharmacy'); if(e4) e4.innerText = topPharm;
