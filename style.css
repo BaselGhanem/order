@@ -1,3 +1,7 @@
+/* ==================================================================
+   القسم الأول: الأساس الذهبي الخاص بك (لا يوجد أي تعديل هنا للابتوب)
+   ================================================================== */
+
 /* 1. Root Variables & Base - Enhanced Design System */
 :root {
     --primary: #0f3b5c;
@@ -136,7 +140,7 @@ header {
 }
 
 /* 7. Forms & Inputs - High readability */
-.input-group { margin-bottom: 20px; position: relative; }
+.input-group { margin-bottom: 20px; }
 .input-group label { 
     display: block; 
     margin-bottom: 8px; 
@@ -175,12 +179,19 @@ select:hover, input:hover {
 /* 8. Tables - Clean and readable */
 .table-responsive {
     width: 100%;
-    overflow: visible !important;
+    overflow: visible !important; /* هذا السطر هو الأهم لمنع القص */
     border-radius: var(--border-radius-lg);
     background: white;
     box-shadow: var(--shadow-sm);
 }
 
+/* للحفاظ على سكرول الجدول في الموبايل مع إعطاء مساحة للقائمة لكي لا تُقص */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto !important;
+        padding-bottom: 220px; /* مساحة إضافية سفلية لتفتح القائمة براحتها */
+    }
+}
 .order-table {
     width: 100%;
     border-collapse: collapse;
@@ -201,7 +212,6 @@ select:hover, input:hover {
     padding: 16px;
     border-bottom: 1px solid #f0f2f5;
     color: #1e2a3a;
-    transition: var(--transition);
 }
 .order-table tr:hover td {
     background-color: #fafcff;
@@ -233,10 +243,10 @@ select:hover, input:hover {
 .btn-primary:active:not(:disabled) {
     transform: translateY(0);
 }
-.btn-primary:disabled, .btn-primary.btn-loading { 
-    opacity: 0.7; 
+.btn-primary:disabled { 
+    opacity: 0.5; 
     cursor: not-allowed;
-    filter: grayscale(0.2);
+    filter: grayscale(0.05);
 }
 
 .btn-secondary { 
@@ -272,9 +282,9 @@ select:hover, input:hover {
     background: rgba(194, 65, 44, 0.2);
     transform: scale(1.02);
 }
-
+/* أضفه هنا في نهاية قسم الأزرار */
 #managerAddNewOrderBtn:hover {
-    background-color: #1a5a8a !important;
+    background-color: #1a5a8a !important; /* لون أفتح قليلاً عند الحوم */
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
@@ -284,7 +294,7 @@ select:hover, input:hover {
     box-shadow: none;
 }
 
-/* 10. Modals - Smooth and accessible (DESKTOP) */
+/* 10. Modals - Smooth and accessible */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -302,9 +312,8 @@ select:hover, input:hover {
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    background: white;
+    background: white; /* تأكيد لون الخلفية */
     border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-lg);
     animation: modalSlide 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }
 @keyframes modalSlide {
@@ -312,7 +321,7 @@ select:hover, input:hover {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Responsive Design Desktop/Tablet */
+/* Responsive Design - Keep original breakpoints but enhanced */
 @media (min-width: 768px) {
     .app-container { padding: 24px; }
     header { flex-direction: row; justify-content: space-between; }
@@ -326,7 +335,7 @@ select:hover, input:hover {
     #orderScreen { display: grid; grid-template-columns: 1fr; gap: 24px; }
 }
 
-/* Status Badges */
+/* Status Badges - Clear and distinct */
 .status-badge {
     padding: 6px 14px;
     border-radius: 40px;
@@ -338,9 +347,9 @@ select:hover, input:hover {
 }
 .status-badge.pending { background: rgba(217, 119, 6, 0.12); color: #b45309; }
 .status-badge.approved { background: rgba(44, 122, 77, 0.12); color: #1e6f42; }
-.status-badge.returned, .status-badge.rejected { background: rgba(194, 65, 44, 0.12); color: #b91c1c; }
+.status-badge.returned { background: rgba(194, 65, 44, 0.12); color: #b91c1c; }
 
-/* Action Buttons */
+/* Action Buttons - Improved tap targets */
 .action-btn {
     background: none;
     border: none;
@@ -365,11 +374,14 @@ select:hover, input:hover {
     transform: scale(0.98);
 }
 
-/* Autocomplete */
+/* ========================================= */
+/* Autocomplete - Fixed & Responsive         */
+/* ========================================= */
+
 .autocomplete-wrapper {
     position: relative !important;
     width: 100%;
-    z-index: 99999 !important;
+    z-index: 99999 !important; /* تمت إضافة هذا السطر */
 }
 .autocomplete-wrapper input {
     width: 100%;
@@ -388,7 +400,7 @@ select:hover, input:hover {
 }
 
 .autocomplete-list {
-    position: absolute !important;
+    position: absolute !important; /* Keep it attached directly beneath the input */
     top: calc(100% + 4px) !important;
     left: 0 !important;
     right: 0 !important;
@@ -400,7 +412,7 @@ select:hover, input:hover {
     overflow-y: auto !important;
     z-index: 99999 !important;
     border: 2px solid var(--primary) !important;
-    display: none;
+    display: none; /* Controlled by Javascript */
     margin: 0 !important;
     padding: 0 !important;
 }
@@ -435,11 +447,19 @@ select:hover, input:hover {
     color: white !important;
 }
 
-.autocomplete-list::-webkit-scrollbar { width: 8px; }
-.autocomplete-list::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-.autocomplete-list::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+.autocomplete-list::-webkit-scrollbar {
+    width: 8px;
+}
+.autocomplete-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+.autocomplete-list::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
 
-/* Manager sub-tabs */
+/* Manager sub-tabs - Clear selection */
 .manager-sub-tabs {
     display: flex;
     gap: 12px;
@@ -466,7 +486,7 @@ select:hover, input:hover {
     color: var(--primary-dark);
 }
 
-/* Auth box */
+/* Auth box - Centered and clean */
 .auth-box {
     display: flex;
     flex-direction: column;
@@ -480,6 +500,7 @@ select:hover, input:hover {
     border: 1px solid rgba(255,255,255,0.6);
 }
 
+/* Remember me container */
 .remember-container {
     display: flex;
     align-items: center;
@@ -498,8 +519,20 @@ select:hover, input:hover {
     cursor: pointer;
 }
 
-/* Admin options grid */
-.admin-options-grid { display: flex; flex-direction: column; gap: 16px; }
+/* Responsive auth box */
+@media (min-width: 480px) {
+    .auth-box {
+        max-width: 460px;
+        padding: 40px 36px;
+    }
+}
+
+/* Admin options grid - Improved buttons */
+.admin-options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
 
 .btn-admin-opt {
     background: #ffffff;
@@ -529,20 +562,31 @@ select:hover, input:hover {
     box-shadow: var(--shadow-md);
     transform: scale(1.02);
 }
-.btn-admin-opt i { font-size: 1.4rem; }
+.btn-admin-opt i {
+    font-size: 1.4rem;
+}
 
-input, select { min-height: 48px; font-size: 1rem; }
+/* Inputs - Better touch targets */
+input, select {
+    min-height: 48px;
+    font-size: 1rem;
+}
 
-button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-visible {
+/* Focus visible for accessibility */
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible,
+.btn-tab:focus-visible {
     outline: 3px solid var(--primary-light);
     outline-offset: 2px;
 }
 
-/* ====================================================
-   🔥 ENHANCEMENTS (UX/UI, Security)
-   ==================================================== */
+/* ==================================================================
+   القسم الثاني: الميزات الجديدة (إشعارات، أوفلاين، حالات فارغة)
+   هذا القسم لا يغير التصميم، بل يضيف ميزات جديدة فقط
+   ================================================================== */
 
-/* 1. Toast Notifications System */
+/* Toast Notifications System */
 #toast-container {
     position: fixed;
     bottom: 24px;
@@ -553,7 +597,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
     gap: 12px;
     pointer-events: none;
 }
-
 .toast {
     background: var(--glass);
     backdrop-filter: blur(10px);
@@ -575,14 +618,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
 .toast.warning { border-right: 5px solid var(--warning); }
 .toast.info { border-right: 5px solid var(--primary); }
 
-@keyframes slideInLeft {
-    to { transform: translateX(0); opacity: 1; }
-}
-@keyframes fadeOut {
-    to { opacity: 0; transform: translateY(10px); }
-}
+@keyframes slideInLeft { to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
 
-/* 2. Offline Indicator */
+/* Offline Indicator */
 .offline-banner {
     position: fixed;
     top: 0;
@@ -603,11 +642,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
     gap: 8px;
     box-shadow: var(--shadow-md);
 }
-.offline-banner.active {
-    transform: translateY(0);
-}
+.offline-banner.active { transform: translateY(0); }
 
-/* 3. Empty States for Tables */
+/* Empty States for Tables */
 .empty-state {
     text-align: center;
     padding: 40px 20px;
@@ -621,18 +658,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
     border: 1px dashed #cbd5e1;
     margin: 20px 0;
 }
-.empty-state i {
-    font-size: 4rem;
-    color: var(--secondary-light);
-    opacity: 0.6;
-}
-.empty-state h3 {
-    font-size: 1.2rem;
-    color: var(--primary);
-    margin-bottom: 4px;
-}
+.empty-state i { font-size: 4rem; color: var(--secondary-light); opacity: 0.6; }
+.empty-state h3 { font-size: 1.2rem; color: var(--primary); margin-bottom: 4px; }
 
-/* 4. Saving Indicator (Top Right) */
+/* Saving Indicator (Top Right) */
 .saving-indicator {
     position: fixed;
     top: 20px;
@@ -652,9 +681,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
     transition: var(--transition);
     border: 1px solid rgba(255,255,255,0.6);
 }
-.saving-indicator.active {
-    opacity: 1;
-}
+.saving-indicator.active { opacity: 1; }
 .spinner {
     width: 18px;
     height: 18px;
@@ -665,7 +692,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* 5. Input Validations (Highlights & Inline Errors) */
+/* Input Validations (Highlights & Inline Errors) */
 .input-error {
     border-color: var(--danger) !important;
     background-color: #fff5f5 !important;
@@ -680,12 +707,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
     animation: fadeIn 0.2s ease;
 }
 
-/* 6. Conditional Styling for Rows */
+/* Conditional Styling for Rows */
 .order-table tr.row-pending td { background-color: rgba(217, 119, 6, 0.04); }
 .order-table tr.row-rejected td { background-color: rgba(194, 65, 44, 0.04); }
 .order-table tr.row-approved td { background-color: rgba(44, 122, 77, 0.04); }
 
-/* 7. Skeleton Loading UI */
+/* Skeleton Loading UI */
 .skeleton {
     background: #f0f2f5;
     background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
@@ -696,22 +723,23 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
 }
 .skeleton * { visibility: hidden; }
 
-/* =======================================================
-   📱 تجربة الموبايل (Popup & App UI) - مُحصورة بدقة 768px فقط
-   ======================================================= */
+/* ==================================================================
+   القسم الثالث: تجربة الموبايل (مقفلة ومحصورة للهواتف 768px فقط)
+   هذا الكود يحول النوافذ لـ Bottom Sheets والشاشات لـ Popup
+   ================================================================== */
 @media screen and (max-width: 768px) {
 
-    /* --- تحويل الشاشات الرئيسية إلى شكل نافذة (Popup Card) منسقة --- */
+    /* --- تحويل الشاشات الرئيسية (Screen) لتظهر وكأنها بطاقة منبثقة --- */
     .screen {
         background: #ffffff;
         border-radius: 24px;
         padding: 20px 15px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        margin-bottom: 20px;
+        margin: 15px; /* إبعادها عن حواف شاشة الموبايل */
         border: 1px solid #f0f2f5;
     }
 
-    /* --- تحويل النوافذ المنبثقة (Modals) إلى Bottom Sheets تشبه الآيفون --- */
+    /* --- تحويل النوافذ المنبثقة (Modals) إلى Bottom Sheets (تنبثق من الأسفل) --- */
     .modal-overlay {
         align-items: flex-end !important; /* تثبيت النافذة في الأسفل */
         padding: 0 !important;
@@ -730,7 +758,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
         animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     }
 
-    /* إضافة خط سحب (Drag Handle) وهمي أعلى الـ Popup ليشعرك أنه تطبيق نيتيف */
+    /* إضافة خط سحب (Drag Handle) وهمي أعلى الـ Popup ليشعرك أنه تطبيق */
     .modal-content::before {
         content: '';
         display: block;
@@ -746,7 +774,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
         to { transform: translateY(0); }
     }
 
-    /* --- إصلاح خطوط الآيفون المزعجة (Zoom Issue) --- */
+    /* --- منع الـ Zoom المزعج في الآيفون عند الكتابة --- */
     input, select, textarea {
         font-size: 16px !important;
     }
@@ -759,13 +787,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
         padding: 15px;
         border-radius: 20px;
     }
-    
     .logo-area {
         flex-direction: column;
         gap: 8px;
     }
 
-    /* --- أزرار الموبايل العريضة والواضحة --- */
+    /* --- أزرار الموبايل (عريضة وواضحة) --- */
     .btn-primary, .btn-secondary, 
     #startOrderBtn, #submitOrderBtn, #saveOrderBtn, #saveEditOrderBtn, #editAddRowBtn {
         width: 100%;
@@ -776,39 +803,30 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
         margin-top: 10px;
     }
 
-    /* --- الجداول: تمرير ناعم ومخفي الشريط --- */
-    .table-responsive {
-        width: 100%;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch; /* سكرول ناعم بالإصبع */
-        border-radius: 16px;
-        background: #fff;
-        border: 1px solid #f0f2f5;
-        margin-bottom: 15px;
-    }
-
-    .table-responsive::-webkit-scrollbar {
-        display: none; /* إخفاء شريط التمرير لجمالية التصميم */
-    }
-
-    .order-table {
-        white-space: nowrap; /* إجبار الجدول على التمدد أفقياً */
-        font-size: 0.95rem;
-    }
-
-    .order-table th, .order-table td {
-        padding: 14px 12px;
-    }
-
-    /* --- قائمة الإكمال التلقائي للموبايل (Autocomplete) --- */
+    /* --- قائمة الاقتراحات (Autocomplete) للموبايل --- */
     .autocomplete-list {
         max-height: 200px !important;
         border-radius: 16px !important;
         box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
     }
-
     .autocomplete-item {
         padding: 16px !important;
         font-size: 16px !important;
+    }
+    
+    /* --- تنسيق الجداول (لمنع القص وإضافة تمرير ناعم) --- */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 16px;
+        border: 1px solid #f0f2f5;
+        margin-bottom: 15px;
+        padding-bottom: 0 !important; /* إلغاء المساحة السفلية الزائدة في الموبايل */
+    }
+    .table-responsive::-webkit-scrollbar { display: none; }
+    .order-table {
+        white-space: nowrap; /* إجبار الجدول على التمدد أفقياً وليس عامودياً */
+        font-size: 0.95rem;
     }
 }
