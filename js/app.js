@@ -907,25 +907,26 @@ async function loadMyOrders() {
 // 💡 تحديث الـ Dashboard المتقدم للمدير
 // 💡 تحديث الـ Dashboard المتقدم للمدير (ديناميكي 100%)
 function updateAdvancedManagerDashboard(orders) {
-    // 🟢 تغيير النص من "طلبيات اليوم" إلى "الطلبيات المعروضة" برمجياً دون الحاجة لتعديل HTML
     const countLabel = document.querySelector('#dashDailyCount')?.previousElementSibling;
     if(countLabel) countLabel.innerText = "عدد الطلبيات المعروضة";
 
     let totalVal = 0;
     let approvedCount = 0;
     const pharmCounts = {};
+    const uniquePharms = new Set(); // 🟢 متغير جديد لحفظ الصيدليات بدون تكرار
 
-    // 🟢 الاعتماد على الـ orders المفلترة بالكامل (تتغير تلقائياً حسب التاريخ المختار)
+    // الاعتماد على الـ orders المفلترة بالكامل 
     orders.forEach(o => {
         totalVal += parseFloat(o.grandTotal) || 0;
         if (o.status === 'approved') approvedCount++;
 
         if (o.pharmacyName) {
             pharmCounts[o.pharmacyName] = (pharmCounts[o.pharmacyName] || 0) + 1;
+            uniquePharms.add(o.pharmacyName); // 🟢 إضافة اسم الصيدلية (Set سيمنع التكرار تلقائياً)
         }
     });
 
-    const periodCount = orders.length; // إجمالي الطلبيات في الفترة المحددة
+    const periodCount = orders.length; 
     const appRate = periodCount > 0 ? Math.round((approvedCount / periodCount) * 100) : 0;
     
     let topPharm = "-";
@@ -938,8 +939,10 @@ function updateAdvancedManagerDashboard(orders) {
     const e2 = document.getElementById('dashTotalValue'); if(e2) e2.innerText = totalVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " د.ا";
     const e3 = document.getElementById('dashApprovalRate'); if(e3) e3.innerText = appRate + "%";
     const e4 = document.getElementById('dashTopPharmacy'); if(e4) e4.innerText = topPharm;
+    
+    // 🟢 طباعة عدد الصيدليات في الكارد الجديد
+    const e5 = document.getElementById('dashUniquePharmacies'); if(e5) e5.innerText = uniquePharms.size;
 }
-
 let managerOrdersData = [];
 
 async function loadManagerOrders() {
