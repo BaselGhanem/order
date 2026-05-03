@@ -1582,7 +1582,9 @@ document.getElementById('confirmAdminLoginBtn').onclick = () => {
     
     if (btoa(pass) === SECRET_HASH) {
         const rememberMe = document.getElementById('rememberAdmin').checked;
-        const authToken = btoa(selectedAdminName + ":" + new Date().getTime()); // Token بسيط كبديل آمن
+        
+        // ✅ التعديل هنا: إضافة encodeURIComponent ليدعم الأسماء العربية بدون أخطاء
+        const authToken = btoa(encodeURIComponent(selectedAdminName + ":" + new Date().getTime())); 
         
         if (rememberMe) {
             localStorage.setItem('managerName', selectedAdminName);
@@ -1609,7 +1611,6 @@ document.getElementById('confirmAdminLoginBtn').onclick = () => {
         showToast("رمز المرور غير صحيح!", "error");
     }
 };
-
 document.getElementById('selectAllAllOrders')?.addEventListener('change', function() {
     const checkboxes = document.querySelectorAll('.all-order-checkbox');
     checkboxes.forEach(cb => cb.checked = this.checked);
