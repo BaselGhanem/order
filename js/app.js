@@ -595,26 +595,56 @@ startOrderBtn.onclick = async () => {
             <i class="ph ph-clock-counter-clockwise"></i> السجل
         </button>`;
         
-    document.getElementById('showPharmHistoryBtn').onclick = async () => {
-        showToast("جاري الاستعلام عن السجل...", "info");
+document.getElementById('showPharmHistoryBtn').onclick = async () => {
+        showToast("جاري جلب السجل التاريخي للصيدلية...", "info");
         try {
             const qFilter = query(collection(db, "orders"), where("pharmacyName", "==", currentPharmacyName));
             const snap = await getDocs(qFilter);
             let history = [];
-            snap.forEach(d => history.push(d.data()));
+            snap.forEach(d => history.push({ id: d.id, ...d.data() }));
+            
             if(history.length === 0) {
                  showToast("لا توجد طلبيات سابقة لهذه الصيدلية.", "warning");
                  return;
             }
+            
+            // ترتيب الطلبيات من الأحدث للأقدم
             history.sort((a,b) => b.createdAt.toDate() - a.createdAt.toDate());
-            const lastOrder = history[0];
-            const dateStr = lastOrder.createdAt.toDate().toLocaleDateString('ar-EG');
-            showToast(`آخر طلبية كانت بتاريخ ${dateStr} بقيمة ${parseFloat(lastOrder.grandTotal).toFixed(2)} د.ا`, "success");
+            
+            // تعبئة النافذة المنبثقة الجديدة
+            const historyBody = document.getElementById('pharmacyHistoryBody');
+            historyBody.innerHTML = '';
+            document.getElementById('historyModalSubtitle').innerText = `صيدلية ${currentPharmacyName}`;
+            
+            history.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.className = `row-${o.status}`; // تلوين الصف حسب الحالة
+                const displayDate = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString('en-GB') : "غير متوفر";
+                
+                tr.innerHTML = `
+                    <td>${o.id.substring(0,6).toUpperCase()}</td>
+                    <td>${displayDate}</td>
+                    <td>${o.repName || '-'}</td>
+                    <td>${(parseFloat(o.grandTotal) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })} د.ا</td>
+                    <td><span class="status-badge ${o.status}">${o.status === 'approved' ? 'موافق عليه' : (o.status === 'pending' ? 'قيد الموافقة' : 'مرتجع')}</span></td>
+                    <td><button class="action-btn edit-btn btn-view-history" title="عرض التفاصيل"><i class="ph ph-eye"></i></button></td>
+                `;
+                
+                // عند الضغط على زر العين، سيفتح تفاصيل الفاتورة (النافذة الحالية)
+                tr.querySelector('.btn-view-history').onclick = () => {
+                    showOrderDetails(o); 
+                };
+                
+                historyBody.appendChild(tr);
+            });
+            
+            // إظهار النافذة
+            document.getElementById('pharmacyHistoryModal').style.display = 'flex';
+            
         } catch(e) {
             showToast("تعذر جلب السجل، تأكد من الاتصال.", "error");
         }
-    };
-    
+    };    
     // 💡 ميزة: استرجاع الحفظ التلقائي (Draft)
     const draftKey = `draft_${currentRepId}_${currentPharmacyName}`;
     const draftStr = localStorage.getItem(draftKey);
