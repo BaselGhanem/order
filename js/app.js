@@ -1202,12 +1202,27 @@ function showOrderDetails(order) {
 
     order.items.forEach(i => {
         const row = document.createElement('tr');
-        row.innerHTML = `<td style="font-weight:600;">${i.name}</td><td>${i.qty}</td><td>${i.bonus||0}</td><td>${parseFloat(i.price).toFixed(2)}</td><td>${parseFloat(i.total).toFixed(2)}</td><td>${i.note || '-'}</td>`;
+        
+        // 🟢 حساب نسبة البونص وعرضها ديناميكياً
+        const qtyVal = parseFloat(i.qty) || 0;
+        const bonusVal = parseFloat(i.bonus) || 0;
+        let bonusPctStr = "";
+        if (qtyVal > 0 && bonusVal > 0) {
+            bonusPctStr = `<div style="font-size:0.75rem; color:var(--primary); font-weight:bold; margin-top:2px;">${Math.round((bonusVal / qtyVal) * 100)}% بونص</div>`;
+        }
+
+        row.innerHTML = `
+            <td style="font-weight:600;">${i.name}</td>
+            <td style="text-align: center;">${i.qty}</td>
+            <td style="text-align: center;">${i.bonus||0} ${bonusPctStr}</td>
+            <td style="text-align: center;">${parseFloat(i.price).toFixed(2)}</td>
+            <td style="text-align: center;">${parseFloat(i.total).toFixed(2)}</td>
+            <td>${i.note || '-'}</td>
+        `;
         modalItemsBody.appendChild(row);
     });
     detailsModal.style.display = 'flex';
 }
-
 function filterAllOrders() {
     const repFilter = (document.getElementById('filterAllRep').value || '').toLowerCase().trim();
     const pharmFilter = (document.getElementById('filterAllPharmacy').value || '').toLowerCase().trim();
@@ -1240,19 +1255,43 @@ function filterAllOrders() {
     updateAdvancedManagerDashboard(filtered); // تحديث لوحة الإحصائيات
 }
 
-document.getElementById('filterAllRep').oninput = filterAllOrders;
-document.getElementById('filterAllPharmacy').oninput = filterAllOrders;
-document.getElementById('filterAllStatus').onchange = filterAllOrders;
-
-document.getElementById('exportAllOrdersBtn').onclick = async () => {
+document.getElementById('exportAllOrdersBtn').onclick = () => {
     const btn = document.getElementById('exportAllOrdersBtn');
     btn.innerHTML = "<i class='ph ph-spinner ph-spin'></i> جاري التجهيز...";
+    
     try {
-        const snap = await getDocs(collection(db, "orders"));
+        // 1. قراءة الفلاتر النشطة حالياً على الشاشة
+        const repFilter = (document.getElementById('filterAllRep').value || '').toLowerCase().trim();
+        const pharmFilter = (document.getElementById('filterAllPharmacy').value || '').toLowerCase().trim();
+        const statusFilter = (document.getElementById('filterAllStatus').value || '').trim();
+        const fromVal = document.getElementById('managerFilterFrom')?.value;
+        const toVal = document.getElementById('managerFilterTo')?.value;
+
+        // 2. فلترة البيانات الموجودة في الذاكرة (لتطابق الجدول المعروض)
+        const ordersToExport = allOrdersData.filter(order => {
+            const repName = (order.repName || '').toLowerCase();
+            const pharmName = (order.pharmacyName || '').toLowerCase();
+            const orderStatus = (order.status || '').trim();
+
+            let matchDate = true;
+            if (order.createdAt && order.createdAt.toDate) {
+                let oDate = order.createdAt.toDate();
+                oDate.setHours(0,0,0,0);
+                
+                if (fromVal) { let dFrom = new Date(fromVal); dFrom.setHours(0,0,0,0); if (oDate < dFrom) matchDate = false; }
+                if (toVal) { let dTo = new Date(toVal); dTo.setHours(0,0,0,0); if (oDate > dTo) matchDate = false; }
+            }
+
+            return repName.includes(repFilter) &&
+                   pharmName.includes(pharmFilter) &&
+                   (statusFilter === '' || orderStatus === statusFilter) &&
+                   matchDate;
+        });
+
         let flatData = [];
         
-        snap.forEach(d => { 
-            const order = d.data(); 
+        // 3. تحضير البيانات المفلترة للإكسل
+        ordersToExport.forEach(order => { 
             const dateStr = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleString('en-GB') : "غير متوفر";
             
             if (order.items && Array.isArray(order.items)) {
@@ -1265,30 +1304,38 @@ document.getElementById('exportAllOrdersBtn').onclick = async () => {
                         "الصنف": item.name || "-", 
                         "الكمية": parseInt(item.qty, 10) || 0, 
                         "البونص": parseInt(item.bonus, 10) || 0, 
+                        "نسبة البونص": (parseInt(item.qty, 10) > 0 && parseInt(item.bonus, 10) > 0) ? Math.round((item.bonus / item.qty) * 100) + "%" : "0%",
                         "السعر": parseFloat(item.price) || 0, 
                         "المجموع الفرعي": parseFloat(item.total) || 0, 
                         "ملاحظة الصنف": item.note || "-",
                         "الاجمالي الكلي": parseFloat(order.grandTotal) || 0, 
                         "ملاحظة الطلبية": order.orderNote || "-",
-                        "الحالة": order.status || "pending" 
+                        // تحسين إضافي: عرض الحالة بالعربي في الإكسل
+                        "الحالة": order.status === 'approved' ? 'موافق عليه' : (order.status === 'pending' ? 'قيد الموافقة' : 'مرتجع')
                     }); 
                 }); 
             }
         });
         
-        if(flatData.length === 0) { showToast("لا توجد بيانات للتصدير", "warning"); return; }
+        if(flatData.length === 0) { 
+            showToast("لا توجد بيانات مطابقة للفلاتر للتصدير", "warning"); 
+            btn.innerHTML = "<i class='ph ph-file-xls'></i> تصدير الطلبيات المفلترة";
+            return; 
+        }
+        
         const ws = XLSX.utils.json_to_sheet(flatData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "جميع_الطلبيات");
-        XLSX.writeFile(wb, "جميع_طلبيات_الشركة.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "الطلبيات");
+        XLSX.writeFile(wb, "تقرير_الطلبيات_المفلترة.xlsx");
+        
         showToast("تم تصدير الملف بنجاح", "success");
+        
     } catch(e) { 
         showToast("حدث خطأ أثناء التصدير", "error"); 
     } finally { 
-        btn.innerHTML = "<i class='ph ph-file-xls'></i> تصدير جميع الطلبيات"; 
+        btn.innerHTML = "<i class='ph ph-file-xls'></i> تصدير الطلبيات المفلترة"; 
     }
 };
-
 async function ensureProductsLoaded() {
     if (productsList.length > 0) return true;
     try {
@@ -1440,13 +1487,16 @@ async function openEditOrder(orderId, userType) {
         if (grandTotalEl) grandTotalEl.innerText = total.toFixed(2);
     }
 
-    function addEditRow(productName='', qty=1, bonus=0, price=0, rowTotal=0, note='') {
+function addEditRow(productName='', qty=1, bonus=0, price=0, rowTotal=0, note='') {
         const tr = document.createElement('tr');
         tr.style.borderBottom = "1px solid #eee";
         tr.innerHTML = `
             <td style="padding: 8px;"><div class="autocomplete-wrapper"><input type="text" class="product-input" value="${productName.replace(/"/g, '&quot;')}" style="width:100%; min-width:200px; padding:8px; border:1px solid #ccc; border-radius:4px; outline:none;" autocomplete="off"><div class="autocomplete-list product-suggestions"></div></div></td>
             <td style="padding: 8px; text-align: center;"><input type="number" class="qty-input" value="${qty}" min="1" style="width: 65px; text-align: center; padding: 8px; border:1px solid #ccc; border-radius:4px; outline:none;"></td>
-            <td style="padding: 8px; text-align: center;"><input type="number" class="bonus-input" value="${bonus}" min="0" style="width: 65px; text-align: center; padding: 8px; border:1px solid #ccc; border-radius:4px; outline:none;"></td>
+            <td style="padding: 8px; text-align: center; position:relative;">
+                <input type="number" class="bonus-input" value="${bonus}" min="0" style="width: 65px; text-align: center; padding: 8px; border:1px solid #ccc; border-radius:4px; outline:none;">
+                <span class="edit-bonus-pct" style="font-size:0.75rem; color:#004a99; font-weight:bold; display:block; text-align:center; margin-top:4px;"></span>
+            </td>
             <td class="price-cell" style="padding: 8px; text-align: center; font-weight: bold; color: #333;">${parseFloat(price).toFixed(2)}</td>
             <td class="row-total" style="padding: 8px; text-align: center; font-weight: bold; color: #d32f2f;">${parseFloat(rowTotal).toFixed(2)}</td>
             <td style="padding: 8px;"><input type="text" class="item-note-input" value="${note}" placeholder="ملاحظة..." style="width:100%; min-width:100px; padding: 8px; border:1px solid #ccc; border-radius:4px; outline:none;"></td>
@@ -1454,8 +1504,20 @@ async function openEditOrder(orderId, userType) {
         `;
         const s = tr.querySelector('.product-input'), sug = tr.querySelector('.product-suggestions');
         const q = tr.querySelector('.qty-input'), p = tr.querySelector('.price-cell'), t = tr.querySelector('.row-total');
+        const b = tr.querySelector('.bonus-input'), bPct = tr.querySelector('.edit-bonus-pct'); // 🟢 جلب حقول البونص
         const productNames = productsList.map(prod => prod.name);
         
+        // 🟢 وظيفة حساب نسبة البونص للتعديل
+        function calcEditBonus() {
+            const qVal = parseFloat(q.value) || 0;
+            const bVal = parseFloat(b.value) || 0;
+            if(qVal > 0 && bVal > 0) {
+                bPct.innerText = `${Math.round((bVal / qVal) * 100)}% بونص`;
+            } else {
+                bPct.innerText = "";
+            }
+        }
+
         setupAutocomplete(s, sug, productNames, (selectedName) => { 
             const prod = productsList.find(pr => pr.name === selectedName); 
             const pr = prod ? parseFloat(prod.price) : 0; 
@@ -1472,13 +1534,19 @@ async function openEditOrder(orderId, userType) {
             else { this.style.border = "1px solid #ccc"; }
         });
 
-        q.oninput = () => { t.innerText = (parseFloat(p.innerText) * q.value).toFixed(2); updateEditTotal(); };
+        q.oninput = () => { 
+            t.innerText = (parseFloat(p.innerText) * q.value).toFixed(2); 
+            calcEditBonus(); // 🟢 التحديث عند تغيير الكمية
+            updateEditTotal(); 
+        };
+        b.oninput = () => { calcEditBonus(); updateEditTotal(); }; // 🟢 التحديث عند تغيير البونص
+
         tr.querySelector('.del-row').onclick = () => { tr.remove(); updateEditTotal(); };
         
         if (editBody) editBody.appendChild(tr);
+        calcEditBonus(); // 🟢 حساب النسبة لحظة تحميل السطر للمرة الأولى
         updateEditTotal();
-    }
-    
+    }    
     if (order.items && order.items.length > 0) {
         order.items.forEach(item => { addEditRow(item.name, item.qty, item.bonus, item.price, item.total, item.note || ''); });
     } else { addEditRow(); }   
