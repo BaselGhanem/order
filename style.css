@@ -181,12 +181,6 @@ select:hover, input:hover {
     box-shadow: var(--shadow-sm);
 }
 
-@media (max-width: 768px) {
-    .table-responsive {
-        overflow-x: auto !important;
-        padding-bottom: 220px;
-    }
-}
 .order-table {
     width: 100%;
     border-collapse: collapse;
@@ -288,31 +282,6 @@ select:hover, input:hover {
 #managerAddNewOrderBtn:active {
     transform: scale(0.95);
     box-shadow: none;
-}
-
-/* 10. Modals - Smooth and accessible */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-}
-.modal-content {
-    width: 100%;
-    max-width: 920px;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    animation: modalSlide 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-}
-@keyframes modalSlide {
-    from { opacity: 0; transform: translateY(20px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* Responsive Design */
@@ -548,9 +517,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
     outline-offset: 2px;
 }
 
-
 /* ====================================================
-   🔥 NEW ADDITIONS FOR ENHANCEMENTS (UX/UI, Security)
+   🔥 ENHANCEMENTS (UX/UI, Security)
    ==================================================== */
 
 /* 1. Toast Notifications System */
@@ -690,7 +658,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
     font-weight: 600;
     animation: fadeIn 0.2s ease;
 }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* 6. Conditional Styling for Rows */
 .order-table tr.row-pending td { background-color: rgba(217, 119, 6, 0.04); }
@@ -707,64 +674,190 @@ button:focus-visible, input:focus-visible, select:focus-visible, .btn-tab:focus-
     color: transparent !important;
 }
 .skeleton * { visibility: hidden; }
-@keyframes shimmer { to { background-position-x: -200%; } }
 
-/* 8. Mobile Card View (Adaptive UX for Tables) */
-@media (max-width: 768px) {
-    /* تفعيل الـ Card View داخل الطلبيات والتقارير لتجربة موبايل احترافية */
-    .table-responsive.mobile-cards table, 
-    .table-responsive.mobile-cards thead, 
-    .table-responsive.mobile-cards tbody, 
-    .table-responsive.mobile-cards th, 
-    .table-responsive.mobile-cards td, 
-    .table-responsive.mobile-cards tr { 
-        display: block; 
+/* =======================================================
+   📱 تحسينات التابلت والموبايل (Responsive & Apple-Style UX)
+   ======================================================= */
+
+/* 1. إعدادات عامة للتابلت (شاشات حتى 1024px) */
+@media screen and (max-width: 1024px) {
+    .app-container {
+        padding: 15px;
+        margin: 10px auto;
     }
     
-    .table-responsive.mobile-cards thead tr { 
-        position: absolute; 
-        top: -9999px; 
-        left: -9999px; 
-    }
-    
-    .table-responsive.mobile-cards tr { 
-        border: 1px solid #e2e8f0; 
-        border-radius: var(--border-radius-md); 
-        margin-bottom: 16px; 
-        padding: 12px; 
-        background: white; 
-        box-shadow: var(--shadow-sm); 
-    }
-    
-    .table-responsive.mobile-cards td { 
-        border: none; 
-        border-bottom: 1px solid #f0f2f5; 
-        position: relative; 
-        padding-left: 10px; 
-        padding-right: 45%; 
-        text-align: left; 
-        padding-top: 12px; 
-        padding-bottom: 12px; 
-        min-height: 40px;
-    }
-    
-    .table-responsive.mobile-cards td:last-child { border-bottom: 0; }
-    
-    .table-responsive.mobile-cards td:before { 
-        position: absolute; 
-        top: 12px; 
-        right: 12px; 
-        width: 40%; 
-        padding-right: 0px; 
-        white-space: nowrap; 
-        font-weight: 700; 
-        color: var(--secondary); 
-        text-align: right; 
-        content: attr(data-label); 
+    .dashboard-cards {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    /* تحسين شكل صندوق الإدخال في الشاشات الصغيرة لتجنب القص */
+    .report-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 2. إعدادات الموبايل الجذرية (شاشات حتى 768px) */
+@media screen and (max-width: 768px) {
+    
+    /* منع الـ Zoom المزعج في أجهزة iOS عند الضغط على الحقول */
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+
+    /* --- الهيدر (Header) --- */
+    header.glass-panel {
+        flex-direction: column !important;
+        align-items: center;
+        text-align: center;
+        padding: 15px;
+        border-radius: 20px;
+    }
+    
+    .logo-area {
+        margin-bottom: 15px;
+        flex-direction: column;
+    }
+    
+    .logo-area h1 {
+        font-size: 1.4rem;
+        margin-top: 10px;
+    }
+
+    header .btn-primary, header .btn-secondary {
+        width: 100%;
+        margin-bottom: 8px;
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    /* --- كروت الإحصائيات (Dashboard) --- */
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+        border-radius: 20px;
+    }
+
+    /* --- الفلاتر (Filters) --- */
+    .filters-container {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 15px;
+    }
+
+    .filter-select {
+        height: 50px;
+        border-radius: 14px;
+    }
+
+    /* --- أزرار الإجراءات الرئيسية --- */
+    #startOrderBtn, #submitOrderBtn, #saveOrderBtn, #saveEditOrderBtn, #editAddRowBtn {
+        width: 100%;
+        padding: 14px;
+        font-size: 1.1rem;
+        border-radius: 16px;
+        margin-top: 10px;
+    }
+
+    /* --- القوائم المنبثقة (Modals) لتشبه Bottom Sheets في أيفون --- */
+    .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 24px 24px 0 0 !important;
+        padding: 20px 15px;
+        animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        margin: 0;
+    }
+
+    @keyframes slideUpModal {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+
+    /* --- الجداول (Tables) - تجربة سكرول احترافية وناعمة --- */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: inset -10px 0 10px -10px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+        border: 1px solid #eee;
+        padding-bottom: 0; /* Override earlier mobile rule if necessary */
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        display: none;
+    }
+    .table-responsive {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .order-table {
+        white-space: nowrap;
+        font-size: 0.9rem;
+    }
+
+    .order-table th, .order-table td {
+        padding: 12px 10px;
+    }
+
+    /* --- حقول إدخال الطلبية (Order Inputs) في الموبايل --- */
+    .product-input, .item-note-input {
+        min-width: 150px !important;
+    }
+    
+    .qty-input, .bonus-input {
+        width: 55px !important;
+        padding: 8px 4px !important;
+    }
+
+    /* --- قائمة الاقتراحات (Autocomplete) --- */
     .autocomplete-list {
-        max-height: 220px !important;
+        max-height: 150px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+    }
+
+    .autocomplete-item {
+        padding: 12px !important;
+        font-size: 15px !important;
+    }
+
+    /* --- الناف بار السفلي أو أزرار التنقل --- */
+    .report-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .report-header div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .report-header button {
+        width: 100%;
+    }
+}
+
+/* 3. إعدادات للشاشات الصغيرة جداً (أقل من 400px) */
+@media screen and (max-width: 400px) {
+    .stat-card .value {
+        font-size: 2rem;
+    }
+    .btn-action {
+        padding: 8px 10px;
+        font-size: 0.8rem;
     }
 }
