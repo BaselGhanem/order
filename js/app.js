@@ -205,7 +205,27 @@ const repManagerMap = {
     "محمد ابو يامين": "عبدالله الناطور",
     "مراد الظاهر": "عبدالله الناطور"
 };
-
+// 🟢 إضافة: كلمات سر المندوبين المشفرة (Base64) لحمايتها من القراءة المباشرة
+const repPasswordsMap = {
+    "قضايا": "MjAyNg==",
+    "LPO": "MjAyNg==",
+    "Settlement": "MjAyNg==",
+    "الهاتف": "MjAyNg==",
+    "مراد الظاهر": "MzQ3OA==",
+    "محمد ابو يامين": "NDA5OQ==",
+    "يزيد الرقب": "NDE4Nw==",
+    "محمد النسور": "MjAyNg==",
+    "مؤيد الزعبي": "MzQ3OQ==",
+    "محمد طوالبه": "MjAyNjA0",
+    "اجود التلهوني": "MzczNw==",
+    "تامر عقل": "MzU2OQ==",
+    "Inactive": "MjAyNg==",
+    "مغلقه": "MjAyNg==",
+    "اخرين": "MjAyNg==",
+    "محمد الفاعوري": "NDAyMA==",
+    "مراد عمر": "MTUxMA==",
+    "محمد عبدربه": "NDAyOQ=="
+};
 let productsList = [];
 let currentRepId = null;
 let currentRepName = null;
@@ -513,7 +533,14 @@ function updateGrandTotal() {
 }
 
 repSelect.onchange = async (e) => {
-    if (!e.target.value) return;
+    if (!e.target.value) {
+        document.getElementById('repPasswordGroup').style.display = 'none';
+        return;
+    }
+    
+    // 🟢 إظهار حقل الرقم السري عند اختيار المندوب
+    document.getElementById('repPasswordGroup').style.display = 'block';
+    
     pharmacyInput.value = '';
     pharmacyInput.placeholder = 'جاري التحميل...';
     try {
@@ -567,7 +594,23 @@ startOrderBtn.onclick = async () => {
         showToast("الرجاء الانتظار... يتم تحميل المنتجات.", "info"); 
         return; 
     }
+    const selectedRepNameText = repSelect.options[repSelect.selectedIndex].text;
+    const repPassInput = document.getElementById('repPasswordInput');
+    const enteredPass = repPassInput.value.trim();
+    const expectedHash = repPasswordsMap[selectedRepNameText];
+
+    if (!enteredPass) {
+        repPassInput.classList.add('input-error');
+        return showToast("الرجاء إدخال الرقم السري الخاص بك.", "warning");
+    }
+
+    if (expectedHash && btoa(enteredPass) !== expectedHash) {
+        repPassInput.classList.add('input-error');
+        return showToast("الرقم السري للمندوب غير صحيح!", "error");
+    }
     
+    repPassInput.classList.remove('input-error');
+    repPassInput.value = ''; // تنظيف الحقل كإجراء أمني بعد الدخول
     const pharmacyName = pharmacyInput.value.trim();
     const selectedPharm = currentPharmaciesData.find(p => p.name === pharmacyName);
     
