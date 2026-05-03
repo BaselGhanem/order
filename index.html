@@ -449,7 +449,34 @@
             </button>
         </div>
     </div>
-
+<!-- 🟢 إضافة: نافذة سجل الصيدلية التاريخي -->
+    <div id="pharmacyHistoryModal" class="modal-overlay" style="display: none; z-index: 10005;">
+        <div class="modal-content glass-panel" style="max-width: 850px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
+                <div>
+                    <h3 style="color: var(--primary); margin: 0;"><i class="ph ph-clock-counter-clockwise"></i> السجل التاريخي للصيدلية</h3>
+                    <small id="historyModalSubtitle" style="color: var(--secondary); font-weight: 600; display: block; margin-top: 5px;"></small>
+                </div>
+                <button type="button" class="close-modal" onclick="document.getElementById('pharmacyHistoryModal').style.display='none'" style="background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--danger);"><i class="ph ph-x-circle"></i></button>
+            </div>
+            
+            <div class="table-responsive mobile-cards" style="max-height: 400px; overflow-y: auto;">
+                <table class="order-table">
+                    <thead style="position: sticky; top: 0; z-index: 10;">
+                        <tr>
+                            <th>رقم المرجع</th>
+                            <th>التاريخ</th>
+                            <th>المندوب</th>
+                            <th>الإجمالي</th>
+                            <th>الحالة</th>
+                            <th>التفاصيل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pharmacyHistoryBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <!-- 🟢 إضافة: حاوية نظام الإشعارات (Toasts) -->
     <div id="toast-container"></div>
 
